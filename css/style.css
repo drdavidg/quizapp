@@ -2,34 +2,57 @@ body {
 	background-color: black;
 	color: white;
 }
+.topstatusline {
+	height: 20px;
+	background-color: #3698F0;
+}
+body .ui-progressbar, body .ui-widget-content {
+	background: black 50% 50% repeat-x;
+}
+body .ui-progressbar-value {
+	background: #3698F0 50% 50% repeat-x;
+}
 .topbar {
 	padding: 30px;
 	margin: 10px;
 }
 .timeleft {
-	/*font-size: 28px;*/
+	margin: 10px 0 10px 0;
 	display: block;
 	text-transform: capitalize;
 	font-weight: 400;
 	color: #05788F;
 	text-align: center;
 	line-height: 1.2em;
-	font-size: 28px;
+	font-size: 30px;
 	font-family: "Gotham SSm A","Gotham SSm B","Helvetica Neue",Helvetiva,Arial,sans-serif;
-	margin: 20px auto;
 }
 .secondsleft {
-	font-size: 3em;
-	display: inline-block;
-	margin: 5px auto;
+	font-size: 7em;
+	display: block;
+	margin: auto;
 	color: #00B5D9;
+	text-align: center;
+	font-weight: 700;
 }
-.playername {
+.playername, .lastanswer, .question  {
 	font-family: "Gotham SSm A","Gotham SSm B","Helvetica Neue",Helvetiva,Arial,sans-serif;
 	color: white;
 	font-size: 2em;
+	display: inline;
+}
+.playername {
 	display: block;
 	margin-left: 150px;
+}
+.rightwrong {
+	font-family: "Gotham SSm A","Gotham SSm B","Helvetica Neue",Helvetiva,Arial,sans-serif;
+	color: red;
+	text-transform: uppercase;
+	font-size: 2em;
+	text-align: center;
+	display: inline;
+	margin-left: 15px;
 }
 .avatar {
 	border-radius: 50%;
@@ -42,10 +65,36 @@ body {
 }
 .playerscore {
 	vertical-align: bottom;
-	color: #AB920E;
+	color: #DAB201;
 	font-size: 3.5em;
 	display: inline-block;
 	text-align: left;
 	margin-left: 100px;
 	margin-top: 5px;
+}
+.qcontent {
+	margin: 50px;
+}
+.qimage img {
+	width: 80%;
+}
+.question {
+	display: block;
+	text-align: center;
+	margin: 50px 0 150px 0;
+	font-size: 48px;
+}
+.multiplechoices {
+	padding: 30px;
+}
+.multiplechoices div {
+	margin: 0 auto;
+}
+.multiplechoices div button {
+	height: 175px;
+	width: 400px;
+	font-size: 160%;
+	font-weight: 500;
+	display: block;
+	margin: 0 auto;
 }
