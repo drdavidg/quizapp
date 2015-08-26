@@ -1,0 +1,51 @@
+body {
+	background-color: black;
+	color: white;
+}
+.topbar {
+	padding: 30px;
+	margin: 10px;
+}
+.timeleft {
+	/*font-size: 28px;*/
+	display: block;
+	text-transform: capitalize;
+	font-weight: 400;
+	color: #05788F;
+	text-align: center;
+	line-height: 1.2em;
+	font-size: 28px;
+	font-family: "Gotham SSm A","Gotham SSm B","Helvetica Neue",Helvetiva,Arial,sans-serif;
+	margin: 20px auto;
+}
+.secondsleft {
+	font-size: 3em;
+	display: inline-block;
+	margin: 5px auto;
+	color: #00B5D9;
+}
+.playername {
+	font-family: "Gotham SSm A","Gotham SSm B","Helvetica Neue",Helvetiva,Arial,sans-serif;
+	color: white;
+	font-size: 2em;
+	display: block;
+	margin-left: 150px;
+}
+.avatar {
+	border-radius: 50%;
+  border: 6px solid white;
+	width: 100px;
+	height: 100px;
+	background: white;
+	display: inline-block;
+	float: left;
+}
+.playerscore {
+	vertical-align: bottom;
+	color: #AB920E;
+	font-size: 3.5em;
+	display: inline-block;
+	text-align: left;
+	margin-left: 100px;
+	margin-top: 5px;
+}
