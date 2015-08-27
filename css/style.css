@@ -110,8 +110,13 @@ div.topcontent > .answersbox {
 .currentquestion {
 	color: #05AEF5;
 }
-.unanswered {
+.unanswered i {
+	font-size: 2.3em;
+}
+
+.unanswered > span {
 	font-size: 31px;
+	line-height: 3.5em;
 }
 .wronganswer {
 	font-size: 7em;
@@ -148,10 +153,10 @@ div.topcontent > .answersbox {
 	margin: 50px 0 150px 0;
 	font-size: 48px;
 }
-#incorrect {
+button.incorrect {
 	background-color: #E50909;
 }
-#correct {
+button.correct {
 	background-color: #25B64F;
 	padding: 0;
 	border: 2px #1D5D1D solid;
