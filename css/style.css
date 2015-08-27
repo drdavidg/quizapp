@@ -86,17 +86,36 @@ body {
 .answersrow1 {
 	margin-bottom: 30px;
 }
+.answersrow1 > div, .answersrow2 > div {
+	text-align: center;
+}
+div.topcontent > .answersbox {
+	border: 1px #414141 solid;
+	border-style: double;
+	padding: 25px;
+	width: 30%;
+	box-shadow: 1px 1px 6px #888888;
+}
+.youranswers {
+	margin: 10px auto;
+	text-align: center;
+	font-size: 3em;
+
+}
 .answercircle {
 	border-radius: 50%;
 	height: 100px;
 	width: 100px;
 }
+.currentquestion {
+	color: #05AEF5;
+}
 .unanswered {
-	border: 6px white solid;
+	font-size: 31px;
 }
 .wronganswer {
 	font-size: 7em;
-	color: green;
+	color: red;
 }
 .avatar {
 	border-radius: 50%;
