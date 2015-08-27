@@ -140,6 +140,7 @@ div.topcontent > .answersbox {
 }
 .qimage img {
 	width: 80%;
+	float: rightt;
 }
 .question {
 	display: block;
@@ -147,10 +148,18 @@ div.topcontent > .answersbox {
 	margin: 50px 0 150px 0;
 	font-size: 48px;
 }
+#incorrect {
+	background-color: #E50909;
+}
+#correct {
+	background-color: #25B64F;
+	padding: 0;
+	border: 2px #1D5D1D solid;	
+}
 .multiplechoices {
 	padding: 30px;
 }
-.multiplechoices div {
+.multiplechoices > div {
 	margin: 0 auto;
 }
 .multiplechoices div button {
