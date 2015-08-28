@@ -122,6 +122,9 @@ div.topcontent > .answersbox {
 	font-size: 7em;
 	color: red;
 }
+.hidden {
+	display: none;
+}
 .avatar {
 	border-radius: 50%;
   border: 6px solid white;
