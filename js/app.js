@@ -64,13 +64,13 @@ $(document).ready(function() {
 
 		$('.multiplechoices div > button').prop('disabled', true);
 
-		setInterval(function() { //couldn't find a better way to time the button hiding sequences
+		setTimeout(function() { //couldn't find a better way to time the button hiding sequences
 			setCorrect();
-		}, 400);
-		setInterval(function() {
+		}, 500);
+		setTimeout(function() {
 			hideIncorrect();
 		}, 1800);
-		setInterval(function() {
+		setTimeout(function() {
 			hideIncorrectChoice();
 		}, 1900);
 
