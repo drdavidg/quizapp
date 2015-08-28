@@ -48,19 +48,30 @@ var recordResult = function(q, result) {
 };
 
 var results = {
-	question: [0, 1, 1, 0]
+	question: [1, 0, 1, 1, 1, 1, 1, 1, 1]
 };
 
 var setResults = function() {
 	//trying to think of the best way to loop through answer results in the DOM and set their visibility.
 	//was going to use n-th child.  but i think a better way is to mark all the <i> with .hidden class.  then use hasCLass to change all hiddens to what they're supposed to be based on results array
-	for (var prop in results.question) {
+	var arrLength = results.question.length;
+	for (var i = 0; i < arrLength; i++) {
 
 
-			// if (results.question[prop] === 0) {
-			// 	$(".answersbox i:nth-child(" + prop++ + ")").removeClass('hidden').addClass('wronganswer');
-			// 	console.log(results.question[prop]);
-			// }
+
+
+
+		// console.log(i);
+		// var y = i + 1;
+		// if (results.question[i] === 0) {
+		// 	$("div.icon:nth-child(" + y + ") > i").removeClass('hidden').addClass('wronganswer fa-times-circle-o');
+		// }
+		// else if (results.question[i] === 1) {
+		// 	$("div.icon:nth-child(" + y + ") > i").removeClass('hidden').addClass('rightanswer fa-check-circle-o');
+		// }
+		// else if (!(results.question[i])) {
+		// 	$(".answersbox div div:nth-child(" + y + ") > i").removeClass('hidden').addClass('unanswered fa-check-circle-o');
+		// }
 	}
 
 		// $('.answersrow1 div i').addClass('wronganswer');
