@@ -54,33 +54,50 @@ $(document).ready(function() {
 		var buttoncolor = recordResult(0, $(this).text());
 		$( this ).addClass(buttoncolor);
 
-
 		displayResults();
 		stopTimer();
 		//should calculate # of points earned and update?
 		//move to next question after some delay or notice given to user
 		//if they chose wrong, make the button they chose red.  and make correct answer green.  after a pause wipe all noncorrect answers away.  also disable the buttons.
-
 	});
 	var resultButtons = function(choice) {
 
 		$('.multiplechoices div > button').prop('disabled', true);
-		var correctanswer = trivia.answer[0];
-		$('.multiplechoices div > button').each(function(index){
-			setInterval(function() {
-				if (($( this ).text()) === (trivia.answer[0])) {
-					$( this ).addClass('correct');
+
+		setInterval(function() { //couldn't find a better way to time the button hiding sequences
+			setCorrect();
+		}, 400);
+		setInterval(function() {
+			hideIncorrect();
+		}, 1800);
+		setInterval(function() {
+			hideIncorrectChoice();
+		}, 1900);
+
+		function setCorrect() {
+			$('.multiplechoices div > button').each(function(index){
+					if (($( this ).text()) === (trivia.answer[0])) {
+						$( this ).addClass('correct');
+						console.log("correct answer");
+					}
+			});
+		}
+		function hideIncorrectChoice() {
+			$('.multiplechoices div > button').each(function(index){
+				if ($( this ).text() === choice) {
+					$( this ).addClass('hider');
+					console.log("hider incorrect choice");
 				}
-				else if ($( this ).text() === choice) {
-					console.log("this is the incorrect button that was clicked but should stay");
-				}
-				else {
+			});
+		}
+		function hideIncorrect() {
+			$('.multiplechoices div > button').each(function(index){
+				if (($( this ).text() !== trivia.answer[0]) && ($( this ).text() !== choice)) {
 					$( this ).addClass('hider'); //learned that using display:hidden removes the element and makes other elements in the DOM move.  visibility: hidden doesn't move other DOM elements
+					console.log("hider incorrect non- choice");
 				}
-			}, 1000);
-
-		});
-
+			});
+		}
 
 	};
 
@@ -88,7 +105,7 @@ $(document).ready(function() {
 		resultButtons(a);
 		if (a === trivia.answer[q]) {
 			results.question[q] = 1;
-			return "correct";
+			return;
 		}
 		else {
 			results.question[q] = 0;
