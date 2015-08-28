@@ -122,8 +122,8 @@ div.topcontent > .answersbox {
 	font-size: 7em;
 	color: red;
 }
-.hidden {
-	display: none;
+.hider {
+	visibility: hidden;
 }
 .avatar {
 	border-radius: 50%;
@@ -163,6 +163,9 @@ button.correct {
 	background-color: #25B64F;
 	padding: 0;
 	border: 2px #1D5D1D solid;
+}
+.multiplechoices div > button:disabled {
+	opacity: 1;
 }
 .multiplechoices {
 	padding: 30px;

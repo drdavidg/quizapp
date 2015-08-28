@@ -51,22 +51,48 @@ $(document).ready(function() {
 	$('.qcontent').on('click', '.multiplechoices div > button', function(event) { //listen for answer choice clicks
 		event.preventDefault();
 		/* Act on the event */
-		var choice = $( this ).text();
-		recordResult(0, choice);
-		setResults();
-		//should stop timer here somehow
+		var buttoncolor = recordResult(0, $(this).text());
+		$( this ).addClass(buttoncolor);
+
+
+		displayResults();
 		stopTimer();
 		//should calculate # of points earned and update?
 		//move to next question after some delay or notice given to user
+		//if they chose wrong, make the button they chose red.  and make correct answer green.  after a pause wipe all noncorrect answers away.  also disable the buttons.
 
 	});
+	var resultButtons = function(choice) {
+
+		$('.multiplechoices div > button').prop('disabled', true);
+		var correctanswer = trivia.answer[0];
+		$('.multiplechoices div > button').each(function(index){
+			setInterval(function() {
+				if (($( this ).text()) === (trivia.answer[0])) {
+					$( this ).addClass('correct');
+				}
+				else if ($( this ).text() === choice) {
+					console.log("this is the incorrect button that was clicked but should stay");
+				}
+				else {
+					$( this ).addClass('hider'); //learned that using display:hidden removes the element and makes other elements in the DOM move.  visibility: hidden doesn't move other DOM elements
+				}
+			}, 1000);
+
+		});
+
+
+	};
 
 	var recordResult = function(q, a) {
+		resultButtons(a);
 		if (a === trivia.answer[q]) {
 			results.question[q] = 1;
+			return "correct";
 		}
 		else {
 			results.question[q] = 0;
+			return "incorrect";
 		}
 	};
 
@@ -74,7 +100,7 @@ $(document).ready(function() {
 		question: []
 	};
 
-	var setResults = function() {
+	var displayResults = function() {
 		var arrLength = results.question.length;
 			$('i').each(function(index){
 				if (results.question[index] === 0) {
