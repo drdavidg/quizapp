@@ -78,7 +78,6 @@ $(document).ready(function() {
 			$('.multiplechoices div > button').each(function(index){
 					if (($( this ).text()) === (trivia.answer[0])) {
 						$( this ).addClass('correct');
-						console.log("correct answer");
 					}
 			});
 		}
@@ -86,7 +85,6 @@ $(document).ready(function() {
 			$('.multiplechoices div > button').each(function(index){
 				if ($( this ).text() === choice) {
 					$( this ).addClass('hider');
-					console.log("hider incorrect choice");
 				}
 			});
 		}
@@ -94,7 +92,6 @@ $(document).ready(function() {
 			$('.multiplechoices div > button').each(function(index){
 				if (($( this ).text() !== trivia.answer[0]) && ($( this ).text() !== choice)) {
 					$( this ).addClass('hider'); //learned that using display:hidden removes the element and makes other elements in the DOM move.  visibility: hidden doesn't move other DOM elements
-					console.log("hider incorrect non- choice");
 				}
 			});
 		}
