@@ -1,4 +1,12 @@
 $(document).ready(function() {
+	var results = {
+		question: []
+	};
+
+	var activeQuestion = function() { //ask Ryan about what i'm trying to do here, and why i'm getting errors that this function isn't defined
+		return results.question.length;
+	};
+
 	timeRemaining();
 	function timeRemaining() {
 		$('.meter > span').each(function() {
@@ -19,8 +27,7 @@ $(document).ready(function() {
 				x--;
 			}
 			else {
-				//mark question wrong here
-				recordResult(0);
+				recordResult(activeQuestion());
 				setScoreboard();
 				clearInterval(timer);
 			}
@@ -64,21 +71,27 @@ $(document).ready(function() {
 			$('.multiplechoices div.q' + (z+1) + ' button').text(mchoices[z]);
 		}
 	};
-	setChoices(0);
+	setChoices(activeQuestion());
 
 	$('.qcontent').on('click', '.multiplechoices div > button', function(event) { //listen for answer choice clicks
 		event.preventDefault();
 		/* Act on the event */
-		var buttoncolor = recordResult(0, $(this).text());
+		var buttoncolor = recordResult(activeQuestion(), $(this).text());
 		$( this ).addClass(buttoncolor);
 
 		setScoreboard();
 		stopTimer();
 		//should calculate # of points earned and update?
-		//**TODO** mark question wrong if timer runs out
+		//**DONE** mark question wrong if timer runs out
 		//move to next question after some delay or notice given to user
 		//DONE-if they chose wrong, make the button they chose red.  and make correct answer green.  after a pause wipe all noncorrect answers away.  also disable the buttons.
 	});
+
+	var nextQuestion = function() {
+		//hide question, all answers, picture.  the make new ones appear.  exit and enter with some sort of jquery animation
+
+	};
+
 	var setButtons = function(choice) {
 
 		$('.multiplechoices div > button').prop('disabled', true);
@@ -95,7 +108,7 @@ $(document).ready(function() {
 
 		function setCorrect() {
 			$('.multiplechoices div > button').each(function(index){
-					if (($( this ).text()) === (trivia.answer[0])) {
+					if (($( this ).text()) === (trivia.answer[activeQuestion()])) {
 						$( this ).addClass('correct');
 					}
 			});
@@ -109,7 +122,7 @@ $(document).ready(function() {
 		}
 		function hideIncorrect() {
 			$('.multiplechoices div > button').each(function(index){
-				if (($( this ).text() !== trivia.answer[0]) && ($( this ).text() !== choice)) {
+				if (($( this ).text() !== trivia.answer[activeQuestion()]) && ($( this ).text() !== choice)) {
 					$( this ).addClass('hider');
 				}
 			});
@@ -127,10 +140,6 @@ $(document).ready(function() {
 			results.question[q] = false;
 			return "incorrect";
 		}
-	};
-
-	var results = {
-		question: []
 	};
 
 	var setScoreboard = function() {
@@ -151,5 +160,7 @@ $(document).ready(function() {
 				}
 			});
 	};
+
+
 
 });
