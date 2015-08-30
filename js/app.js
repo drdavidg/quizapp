@@ -6,26 +6,29 @@ $(document).ready(function() {
 		    .data('origWidth', $(this).width())
 		    .width('origWidth')
 		    .animate({
-		      // width: $(this).data("origWidth") // or + "%" if fluid
 					width: 0
 		    }, 10000);
 		});
-	//make time left tick downwards.
 	startTimer(9);
 	}
-	var stop = true;
+	var timer;
 	function startTimer(x) {
-		var timer = setInterval(function() {
-			if (x >= 0 && stop) {
+		 timer = setInterval(function() {
+			if (x >= 0) {
 				$('.secondsleft').text(x);
 				x--;
 			}
-			else clearInterval(timer);
+			else {
+				//mark question wrong here
+				recordResult(0);
+				setScoreboard();
+				clearInterval(timer);
+			}
 		}, 1000);
 	}
 	function stopTimer() {
 		$('.meter > span').stop();
-		stop = false;
+		clearInterval(timer);
 	}
 
 	var trivia = {
@@ -34,17 +37,32 @@ $(document).ready(function() {
 		answer: ["Walk","Villages along the Stony Shore"]
 	};
 
+	var trivia2 = [
+		{
+			prompt: "What is Bran unable to do due to his injuries?",
+			choices: ["Sleep","Archery","Walk","Eat"],
+			answer: "Walk"
+		},
+		{
+			prompt: "Where is Theon Greyjoy tasked with raiding using only one ship by his father?",
+			choice: ["Villages along the Stony Shore","Coastal towns of Bear Island","Ports along Blazewater Bay","Cape Kraken"],
+			answer: "Villages along the Stony Shore"
+		}
+	];
+// trivia2[0]
+// trivia2[1]["prompt"]
+
 	var setQuestion = function(qnumber) {
 		$('.question').text(trivia.questions[qnumber]);
 	};
 
 	setQuestion(0);
 
-	var setChoices = function(m) {
-		$('.multiplechoices div.q1 button').text(trivia.choices[m][0]);
-		$('.multiplechoices div.q2 button').text(trivia.choices[m][1]);
-		$('.multiplechoices div.q3 button').text(trivia.choices[m][2]);
-		$('.multiplechoices div.q4 button').text(trivia.choices[m][3]);
+	var setChoices = function(mchoice) {
+		var mchoices = trivia.choices[mchoice];
+		for (var z = 0; z < mchoices.length; z++) {
+			$('.multiplechoices div.q' + (z+1) + ' button').text(mchoices[z]);
+		}
 	};
 	setChoices(0);
 
@@ -54,17 +72,18 @@ $(document).ready(function() {
 		var buttoncolor = recordResult(0, $(this).text());
 		$( this ).addClass(buttoncolor);
 
-		displayResults();
+		setScoreboard();
 		stopTimer();
 		//should calculate # of points earned and update?
+		//**TODO** mark question wrong if timer runs out
 		//move to next question after some delay or notice given to user
-		//if they chose wrong, make the button they chose red.  and make correct answer green.  after a pause wipe all noncorrect answers away.  also disable the buttons.
+		//DONE-if they chose wrong, make the button they chose red.  and make correct answer green.  after a pause wipe all noncorrect answers away.  also disable the buttons.
 	});
-	var resultButtons = function(choice) {
+	var setButtons = function(choice) {
 
 		$('.multiplechoices div > button').prop('disabled', true);
 
-		setTimeout(function() { //couldn't find a better way to time the button hiding sequences
+		setTimeout(function() {
 			setCorrect();
 		}, 500);
 		setTimeout(function() {
@@ -91,7 +110,7 @@ $(document).ready(function() {
 		function hideIncorrect() {
 			$('.multiplechoices div > button').each(function(index){
 				if (($( this ).text() !== trivia.answer[0]) && ($( this ).text() !== choice)) {
-					$( this ).addClass('hider'); //learned that using display:hidden removes the element and makes other elements in the DOM move.  visibility: hidden doesn't move other DOM elements
+					$( this ).addClass('hider');
 				}
 			});
 		}
@@ -99,13 +118,13 @@ $(document).ready(function() {
 	};
 
 	var recordResult = function(q, a) {
-		resultButtons(a);
+		setButtons(a);
 		if (a === trivia.answer[q]) {
-			results.question[q] = 1;
+			results.question[q] = true;  //**DONE** change this to booleans
 			return;
 		}
 		else {
-			results.question[q] = 0;
+			results.question[q] = false;
 			return "incorrect";
 		}
 	};
@@ -114,15 +133,15 @@ $(document).ready(function() {
 		question: []
 	};
 
-	var displayResults = function() {
+	var setScoreboard = function() {
 		var arrLength = results.question.length;
 			$('i').each(function(index){
-				if (results.question[index] === 0) {
+				if (results.question[index] === false) {
 					$( this ).addClass('wronganswer fa-times-circle-o')
 					.removeClass('fa-circle-o')
-					.siblings('span').remove();
+					.siblings('span').empty(); //**DONE** instead of remove, maybe use .empty() so I can restart the quiz
 				}
-				else if (results.question[index] === 1) {
+				else if (results.question[index]) {
 					$( this ).addClass('fa-check-circle-o rightanswer')
 						.removeClass('fa-circle-o')
 						.siblings('span').remove();
