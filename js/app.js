@@ -1,4 +1,5 @@
 $(document).ready(function() {
+
 	var results = {
 		question: []
 	};
@@ -6,6 +7,7 @@ $(document).ready(function() {
 	var activeQuestion = function() { //ask Ryan about what i'm trying to do here, and why i'm getting errors that this function isn't defined
 		return results.question.length;
 	};
+
 
 	timeRemaining();
 	function timeRemaining() {
@@ -89,7 +91,7 @@ $(document).ready(function() {
 
 	var nextQuestion = function() {
 		//hide question, all answers, picture.  the make new ones appear.  exit and enter with some sort of jquery animation
-
+		//have separate function that increments to the next question
 	};
 
 	var setButtons = function(choice) {
@@ -97,7 +99,7 @@ $(document).ready(function() {
 		$('.multiplechoices div > button').prop('disabled', true);
 
 		setTimeout(function() {
-			setCorrect();
+			setCorrect(results.question.length);
 		}, 500);
 		setTimeout(function() {
 			hideIncorrect();
@@ -106,9 +108,12 @@ $(document).ready(function() {
 			hideIncorrectChoice();
 		}, 1900);
 
-		function setCorrect() {
+		function setCorrect(active) {
 			$('.multiplechoices div > button').each(function(index){
-					if (($( this ).text()) === (trivia.answer[activeQuestion()])) {
+				console.log("active question number is " + active);
+				console.log("active question's answer is: " + trivia.answer[active]);
+				console.log("clicked response is " + $( this ).text());
+					if (($( this ).text()) === (trivia.answer[active])) {
 						$( this ).addClass('correct');
 					}
 			});
@@ -148,7 +153,7 @@ $(document).ready(function() {
 				if (results.question[index] === false) {
 					$( this ).addClass('wronganswer fa-times-circle-o')
 					.removeClass('fa-circle-o')
-					.siblings('span').empty(); //**DONE** instead of remove, maybe use .empty() so I can restart the quiz
+					.siblings('span').hide(); //**DONE** instead of remove, maybe use .empty() so I can restart the quiz
 				}
 				else if (results.question[index]) {
 					$( this ).addClass('fa-check-circle-o rightanswer')
@@ -160,7 +165,5 @@ $(document).ready(function() {
 				}
 			});
 	};
-
-
 
 });
