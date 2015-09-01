@@ -10,6 +10,7 @@ $(document).ready(function() {
 
 	timeRemaining();
 	var initialWidth = $('.meter > span').width();
+
 	function timeRemaining(initialWidth) {
 		startTimer(9);
 		$('.meter > span').width(initialWidth);
@@ -147,34 +148,26 @@ $(document).ready(function() {
 
 	};
 	var score = 0;
-	var calcScore = function(addToScore) {
-		//rules: 15 points per correct answer
-		//-1 every 2 sec it takes to answer
-		addToScore = parseInt(addToScore, 10);
-		console.log("score is " + score);
-		console.log("score is type " + typeof(score) );
-		console.log("addToScore is type " + typeof(addToScore) );
-		//score = parseInt(score, 10);
-
-		score = score + addToScore;
-		if (!(isNaN(addToScore))) { //ASKRYAN do i have to do this?  is there a way to make the argument default to be a number?
-			//score += addToScore;
+	var calcScore = function(result) {
+		//rules: 10 points per correct answer
+		//2 extra points if answered in <5 seconds
+		if (result) {
+			score += 10;
+			var secondsPoints = parseInt($('.secondsleft').text(), 10);
+			if (secondsPoints > 5) {
+				score += 2;
+			}
+			$('.playerscore').text(score);
 		}
-		else {
-			console.log("addToScore isn'ta  number!!");
-		}
-
-		console.log("score is " + score);
-		//score += (($('.playerscore').text())/2);
 		$('.playerscore').text(score);
 	};
-	calcScore();
+	calcScore(false);
 
 	var recordResult = function(q, a) {
 		setButtons(a);
 		if (a === trivia.answer[q]) {
 			results.question[q] = true;  //**DONE** change this to booleans
-			calcScore(10);
+			calcScore(true);
 			return;
 		}
 		else {
