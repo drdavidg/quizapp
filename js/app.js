@@ -1,5 +1,4 @@
 $(document).ready(function() {
-
 	var results = {
 		question: []
 	};
@@ -10,16 +9,19 @@ $(document).ready(function() {
 
 
 	timeRemaining();
-	function timeRemaining() {
+	var initialWidth = $('.meter > span').width();
+	function timeRemaining(initialWidth) {
+		startTimer(9);
+		$('.meter > span').width(initialWidth);
 		$('.meter > span').each(function() {
 		  $(this)
-		    .data('origWidth', $(this).width())
-		    .width('origWidth')
+		    // .data('origWidth', $(this).width())
+		     .width('origWidth')
 		    .animate({
 					width: 0
 		    }, 10000);
 		});
-	startTimer(9);
+
 	}
 	var timer;
 	function startTimer(x) {
@@ -41,9 +43,9 @@ $(document).ready(function() {
 	}
 
 	var trivia = {
-		questions: ["What is Bran unable to do due to his injuries?", "Where is Theon Greyjoy tasked with raiding using only one ship by his father?" ],
-		choices: [["Sleep","Archery","Walk","Eat"],["Villages along the Stony Shore","Coastal towns of Bear Island","Ports along Blazewater Bay","Cape Kraken"]],
-		answer: ["Walk","Villages along the Stony Shore"]
+		questions: ["What is Bran unable to do due to his injuries?", "Where is Theon Greyjoy tasked with raiding using only one ship by his father?", "As Maester Luwin is dying, he tells Osha to take Rickon and Bran Stark to " ],
+		choices: [["Sleep","Archery","Walk","Eat"],["Villages along the Stony Shore","Coastal towns of Bear Island","Ports along Blazewater Bay","Cape Kraken"],["Riverrun to find their mother","the Wall to find their brother Jon","Rivverun to find Rob", "King's Landing to find Arya and Sansa","find Benjen Stark north of the Wall"]],
+		answer: ["Walk","Villages along the Stony Shore","the Wall to find their brother Jon"]
 	};
 
 	var trivia2 = [
@@ -71,6 +73,8 @@ $(document).ready(function() {
 		var mchoices = trivia.choices[mchoice];
 		for (var z = 0; z < mchoices.length; z++) {
 			$('.multiplechoices div.q' + (z+1) + ' button').text(mchoices[z]);
+			$('.multiplechoices div.q' + (z+1) + ' button').removeClass('hider');
+			$('.multiplechoices div.q' + (z+1) + ' button').removeClass('incorrect').removeClass('correct');
 		}
 	};
 	setChoices(activeQuestion());
@@ -92,6 +96,12 @@ $(document).ready(function() {
 	var nextQuestion = function() {
 		//hide question, all answers, picture.  the make new ones appear.  exit and enter with some sort of jquery animation
 		//have separate function that increments to the next question
+		setQuestion(activeQuestion());
+		setChoices(activeQuestion());
+		$('.qimage > img').prop('src', 'img/' + (activeQuestion()+1)  +'.jpg ');
+		$('.multiplechoices div > button').prop('disabled', false);
+		$('.secondsleft').text(10);		//set timer to 10
+		timeRemaining(initialWidth);
 	};
 
 	var setButtons = function(choice) {
@@ -107,13 +117,15 @@ $(document).ready(function() {
 		setTimeout(function() {
 			hideIncorrectChoice();
 		}, 1900);
+		setTimeout(function() {
+			nextQuestion();
+		}, 3000);
+
 
 		function setCorrect(active) {
 			$('.multiplechoices div > button').each(function(index){
-				console.log("active question number is " + active);
-				console.log("active question's answer is: " + trivia.answer[active]);
-				console.log("clicked response is " + $( this ).text());
-					if (($( this ).text()) === (trivia.answer[active])) {
+
+					if (($( this ).text()) === (trivia.answer[(active-1)])) {
 						$( this ).addClass('correct');
 					}
 			});
@@ -134,11 +146,35 @@ $(document).ready(function() {
 		}
 
 	};
+	var score = 0;
+	var calcScore = function(addToScore) {
+		//rules: 15 points per correct answer
+		//-1 every 2 sec it takes to answer
+		addToScore = parseInt(addToScore, 10);
+		console.log("score is " + score);
+		console.log("score is type " + typeof(score) );
+		console.log("addToScore is type " + typeof(addToScore) );
+		//score = parseInt(score, 10);
+
+		score = score + addToScore;
+		if (!(isNaN(addToScore))) { //ASKRYAN do i have to do this?  is there a way to make the argument default to be a number?
+			//score += addToScore;
+		}
+		else {
+			console.log("addToScore isn'ta  number!!");
+		}
+
+		console.log("score is " + score);
+		//score += (($('.playerscore').text())/2);
+		$('.playerscore').text(score);
+	};
+	calcScore();
 
 	var recordResult = function(q, a) {
 		setButtons(a);
 		if (a === trivia.answer[q]) {
 			results.question[q] = true;  //**DONE** change this to booleans
+			calcScore(10);
 			return;
 		}
 		else {
@@ -146,6 +182,10 @@ $(document).ready(function() {
 			return "incorrect";
 		}
 	};
+	var setImage = function() {
+		$('.qimage > img').prop('src', 'img/' + (activeQuestion()+1)  +'.jpg ');
+	};
+	setImage();
 
 	var setScoreboard = function() {
 		var arrLength = results.question.length;
