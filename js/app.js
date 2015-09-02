@@ -63,7 +63,8 @@ $(document).ready(function() {
 				}
 			return answeredQuestions;
 		},
-		timeRemaining: function(initialWidth) {
+		timeRemaining: function() {
+			var initialWidth = $(window).width();
 			gotTrivia.startTimer(9);
 			$('.meter > span').width(initialWidth);
 			$('.meter > span').each(function() {
@@ -92,7 +93,7 @@ $(document).ready(function() {
 				clearInterval(timer);
 			},
 			setQuestion: function(qnumber) {
-				if (qnumber) $('.question').text(quiz[qnumber].prompt);
+				if (qnumber !== false) $('.question').text(quiz[qnumber].prompt);
 			},
 			setChoices: function(mchoice) {
 				if (mchoice !== false) {
@@ -142,7 +143,7 @@ $(document).ready(function() {
 				}
 			},
 			calcScore: function(result) {
-				//rules: 10 points per correct answer; 2 extra points if answered in <5 seconds
+				//rules: 10 points per correct answer; 2 extra points if answered in <5 second
 				if (result) {
 					score += 10;
 					var secondsPoints = parseInt($('.secondsleft').text(), 10);
@@ -171,6 +172,11 @@ $(document).ready(function() {
 			setScoreboard: function() {
 					var numberCorrect = 0;
 					$('i').each(function(index){
+						if (quiz[index].result === undefined) {
+							$( this ).addClass('unanswered fa-circle-o')
+							.removeClass('wronganswer currentquestion rightanswer')
+							.siblings('span').show(); //**DONE** instead of remove, maybe use .empty() so I can restart the quiz
+						}
 						if (quiz[index].result === false) {
 							$( this ).addClass('wronganswer fa-times-circle-o')
 							.removeClass('fa-circle-o')
@@ -179,7 +185,7 @@ $(document).ready(function() {
 						else if (quiz[index].result) {
 							$( this ).addClass('fa-check-circle-o rightanswer')
 								.removeClass('fa-circle-o currentquestion')
-								.siblings('span').remove();
+								.siblings('span').hide();
 							numberCorrect++;
 						}
 						else if (index === gotTrivia.activeQuestion()) {
@@ -190,7 +196,7 @@ $(document).ready(function() {
 			},
 			nextQuestion: function(q){
 				if (!q) {
-					gotTrivia.blockModal();
+					gotTrivia.finalScore();
 					return;
 				}
 				gotTrivia.setQuestion(gotTrivia.activeQuestion());
@@ -198,12 +204,9 @@ $(document).ready(function() {
 				$('.qimage > img').prop('src', 'img/' + (gotTrivia.activeQuestion()+1)  +'.jpg ');
 				$('.multiplechoices div > button').prop('disabled', false);
 				$('.secondsleft').text(10);		//set timer to 10
-				gotTrivia.timeRemaining(initialWidth);
-				//gotTrivia.blockModal();
+				gotTrivia.timeRemaining();
 			},
-			blockModal: function() {
-				var pageHeight = $(document).height();
-				var pageWidth = $(window).width();
+			finalScore: function() {
 				$('body').children().toggle(); //hide everything on the page
 				$('.finalscoreboard > div').addClass('finalstats youranswers');
 				$('.topcontent').show();
@@ -214,7 +217,7 @@ $(document).ready(function() {
 					$('.finalstats').text(gotTrivia.setScoreboard() + "/" + quiz.length);
 					$('.resultsgif').show();
 					$('.finalstats').addClass('wronganswer');
-					$('.resultsgif').prop('src', 'img/youknownothing2.gif');
+					$('.resultsgif').prop('src', 'img/youknownothing3.gif');
 				}
 				else {
 					$('.finalstats').text(gotTrivia.setScoreboard() + "/" + quiz.length + " questions correct.  Keep that mind sharp.");
@@ -222,40 +225,49 @@ $(document).ready(function() {
 					$('.finalstats').addClass('rightanswer');
 					$('.resultsgif').prop('src', 'img/tyrionsmart.gif').prop('width', '75%');
 				}
-				$('.topcontent').on('click', '.answersbox .youranswers > img.closebutton', function(event) { //listen for answer choice clicks
+				$('.topcontent').on('click', '.answersbox', function(event) {
 					event.preventDefault();
-					console.log('close button clicked');
+					console.log('answers box clicked')					;
 					$('body').children().toggle();
 					$('.finalscoreboard').hide();
 					 $('.topcontent').show();
 					$('.timeleftbox').show();
 					$('.playerbox').children().show();
+					gotTrivia.resetQuiz();
+					gotTrivia.initQuiz();
 				});
+			},
+			initClickWatch: function() {
+				$('.qcontent').on('click', '.multiplechoices div > button', function(event) { //listen for answer choice clicks
+					event.preventDefault();
+					var buttoncolor = gotTrivia.recordResult(gotTrivia.activeQuestion(), $(this).text());
+					$( this ).addClass(buttoncolor);
+					gotTrivia.setScoreboard();
+					gotTrivia.stopTimer();
+				});
+			},
+			initQuiz: function() {
+  			gotTrivia.initClickWatch();
+				gotTrivia.timeRemaining();
+				gotTrivia.setQuestion(gotTrivia.activeQuestion());
+				gotTrivia.setChoices(gotTrivia.activeQuestion());
+				gotTrivia.setImage();
+				gotTrivia.setScoreboard();
+				gotTrivia.calcScore();
+			},
+			resetQuiz: function() {
+				//clear results answers. then initQuiz().  i think that should do it?
+				for (var t in quiz) {
+					quiz[t].result = undefined;
+				}
+				$('.multiplechoices div > button').prop('disabled', false).removeClass('correct incorrect');
+
+				score = 0;
+				$('.playerscore').text(score);
 			}
 	};
 
-	gotTrivia.timeRemaining();
-	var initialWidth = $('.meter > span').width();
+	var score = 0;  //RYAN: where can i set this variable, is this the correct place to do so? if i don't set it, i get NaN error
 
-	var timer;
-
-	gotTrivia.setQuestion(0);
-	gotTrivia.setChoices(gotTrivia.activeQuestion());
-
-	var score = 0;
-	gotTrivia.calcScore(false);
-
-	gotTrivia.setImage();
-
-	$('.qcontent').on('click', '.multiplechoices div > button', function(event) { //listen for answer choice clicks
-		event.preventDefault();
-		var buttoncolor = gotTrivia.recordResult(gotTrivia.activeQuestion(), $(this).text());
-		$( this ).addClass(buttoncolor);
-		gotTrivia.setScoreboard();
-		gotTrivia.stopTimer();
-	});
-
-	//gotTrivia.blockModal();
-
-
+	gotTrivia.initQuiz();
 });
