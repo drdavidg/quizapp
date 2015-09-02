@@ -56,13 +56,11 @@ $(document).ready(function() {
 		activeQuestion: function() {
 			var answeredQuestions = 0;
 				for (var r = 0; r < quiz.length; r++) {
-					if (quiz[r].result !== undefined) {
-						console.log(quiz[r].result);
-						console.log("added a question");
-						answeredQuestions++;
-					}
+					if (quiz[r].result !== undefined) answeredQuestions++;
 				}
-				console.log("we're on question number " + answeredQuestions);
+				if (answeredQuestions === quiz.length || quiz.length === undefined ) {
+					return false;
+				}
 			return answeredQuestions;
 		},
 		timeRemaining: function(initialWidth) {
@@ -70,7 +68,6 @@ $(document).ready(function() {
 			$('.meter > span').width(initialWidth);
 			$('.meter > span').each(function() {
 				$(this)
-					// .data('origWidth', $(this).width())
 					 .width('origWidth')
 					.animate({
 						width: 0
@@ -95,56 +92,57 @@ $(document).ready(function() {
 				clearInterval(timer);
 			},
 			setQuestion: function(qnumber) {
-				$('.question').text(quiz[qnumber].prompt);
+				if (qnumber) $('.question').text(quiz[qnumber].prompt);
 			},
 			setChoices: function(mchoice) {
-				var mchoices = quiz[mchoice].choices;
-				for (var z = 0; z < mchoices.length; z++) {
-					$('.multiplechoices div.q' + (z+1) + ' button').text(mchoices[z]);
-					$('.multiplechoices div.q' + (z+1) + ' button').removeClass('hider');
-					$('.multiplechoices div.q' + (z+1) + ' button').removeClass('incorrect').removeClass('correct');
-				}			},
+				if (mchoice !== false) {
+					var mchoices = quiz[mchoice].choices;
+					for (var z = 0; z < mchoices.length; z++) {
+						$('.multiplechoices div.q' + (z+1) + ' button').text(mchoices[z]);
+						$('.multiplechoices div.q' + (z+1) + ' button').removeClass('hider');
+						$('.multiplechoices div.q' + (z+1) + ' button').removeClass('incorrect').removeClass('correct');
+					}
+				}
+			},
 			setButtons: function(choice) {
 				$('.multiplechoices div > button').prop('disabled', true);
 				setTimeout(function() {
 					setCorrect(gotTrivia.activeQuestion());
 				}, 500);
 				setTimeout(function() {
-					hideIncorrect();
+					hideIncorrect(gotTrivia.activeQuestion());
 				}, 1800);
 				setTimeout(function() {
-					hideIncorrectChoice();
+					hideIncorrectChoice(gotTrivia.activeQuestion());
 				}, 1900);
 				setTimeout(function() {
-					gotTrivia.nextQuestion();
+					gotTrivia.nextQuestion(gotTrivia.activeQuestion());
 				}, 3000);
 
 				function setCorrect(active) {
 					$('.multiplechoices div > button').each(function(index){
-
-							if (($( this ).text()) === (quiz[(active-1)].answer)) {
+						if ((active) && (($( this ).text()) === quiz[(gotTrivia.activeQuestion()-1)].answer)) {
 								$( this ).addClass('correct');
 							}
 					});
 				}
-				function hideIncorrectChoice() {
+				function hideIncorrectChoice(active) {
 					$('.multiplechoices div > button').each(function(index){
-						if ($( this ).text() === choice) {
+						if ((active) && ($( this ).text() === choice)) {
 							$( this ).addClass('hider');
 						}
 					});
 				}
-				function hideIncorrect() {
+				function hideIncorrect(active) {
 					$('.multiplechoices div > button').each(function(index){
-						if (($( this ).text() !== quiz[gotTrivia.activeQuestion()].answer) && ($( this ).text() !== choice)) {
+						if ((active) && ($( this ).text() !== quiz[gotTrivia.activeQuestion()].answer) && ($( this ).text() !== choice)) {
 							$( this ).addClass('hider');
 						}
 					});
 				}
 			},
 			calcScore: function(result) {
-				//rules: 10 points per correct answer
-				//2 extra points if answered in <5 seconds
+				//rules: 10 points per correct answer; 2 extra points if answered in <5 seconds
 				if (result) {
 					score += 10;
 					var secondsPoints = parseInt($('.secondsleft').text(), 10);
@@ -171,7 +169,7 @@ $(document).ready(function() {
 				$('.qimage > img').prop('src', 'img/' + (gotTrivia.activeQuestion()+1)  +'.jpg ');
 			},
 			setScoreboard: function() {
-				var arrLength = quiz.length;
+					var numberCorrect = 0;
 					$('i').each(function(index){
 						if (quiz[index].result === false) {
 							$( this ).addClass('wronganswer fa-times-circle-o')
@@ -180,23 +178,59 @@ $(document).ready(function() {
 						}
 						else if (quiz[index].result) {
 							$( this ).addClass('fa-check-circle-o rightanswer')
-								.removeClass('fa-circle-o')
+								.removeClass('fa-circle-o currentquestion')
 								.siblings('span').remove();
+							numberCorrect++;
 						}
-						else if (index === arrLength) {
+						else if (index === gotTrivia.activeQuestion()) {
 							$( this ).addClass('currentquestion');
 						}
 					});
+					return numberCorrect;
 			},
-			nextQuestion: function(){
-				//hide question, all answers, picture.  the make new ones appear.  exit and enter with some sort of jquery animation
-				//have separate function that increments to the next question
+			nextQuestion: function(q){
+				if (!q) {
+					gotTrivia.blockModal();
+					return;
+				}
 				gotTrivia.setQuestion(gotTrivia.activeQuestion());
 				gotTrivia.setChoices(gotTrivia.activeQuestion());
 				$('.qimage > img').prop('src', 'img/' + (gotTrivia.activeQuestion()+1)  +'.jpg ');
 				$('.multiplechoices div > button').prop('disabled', false);
 				$('.secondsleft').text(10);		//set timer to 10
 				gotTrivia.timeRemaining(initialWidth);
+				//gotTrivia.blockModal();
+			},
+			blockModal: function() {
+				var pageHeight = $(document).height();
+				var pageWidth = $(window).width();
+				$('body').children().toggle(); //hide everything on the page
+				$('.finalscoreboard > div').addClass('finalstats youranswers');
+				$('.topcontent').show();
+				$('.timeleftbox').hide();
+				$('.playerbox').children().hide();
+				$('.finalscoreboard').children().removeClass('hider');
+				if (gotTrivia.setScoreboard() < 5) {
+					$('.finalstats').text(gotTrivia.setScoreboard() + "/" + quiz.length);
+					$('.resultsgif').show();
+					$('.finalstats').addClass('wronganswer');
+					$('.resultsgif').prop('src', 'img/youknownothing2.gif');
+				}
+				else {
+					$('.finalstats').text(gotTrivia.setScoreboard() + "/" + quiz.length + " questions correct.  Keep that mind sharp.");
+					$('.resultsgif').show();
+					$('.finalstats').addClass('rightanswer');
+					$('.resultsgif').prop('src', 'img/tyrionsmart.gif').prop('width', '75%');
+				}
+				$('.topcontent').on('click', '.answersbox .youranswers > img.closebutton', function(event) { //listen for answer choice clicks
+					event.preventDefault();
+					console.log('close button clicked');
+					$('body').children().toggle();
+					$('.finalscoreboard').hide();
+					 $('.topcontent').show();
+					$('.timeleftbox').show();
+					$('.playerbox').children().show();
+				});
 			}
 	};
 
@@ -206,7 +240,6 @@ $(document).ready(function() {
 	var timer;
 
 	gotTrivia.setQuestion(0);
-
 	gotTrivia.setChoices(gotTrivia.activeQuestion());
 
 	var score = 0;
@@ -221,5 +254,8 @@ $(document).ready(function() {
 		gotTrivia.setScoreboard();
 		gotTrivia.stopTimer();
 	});
+
+	//gotTrivia.blockModal();
+
 
 });
