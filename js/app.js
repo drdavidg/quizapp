@@ -210,6 +210,7 @@ $(document).ready(function() {
 				$('body').children().toggle(); //hide everything on the page
 				$('.finalscoreboard > div').addClass('finalstats youranswers');
 				$('.topcontent').show();
+				$('button.resetbutton').show();
 				$('.timeleftbox').hide();
 				$('.playerbox').children().hide();
 				$('.finalscoreboard').children().removeClass('hider');

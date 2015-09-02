@@ -181,13 +181,6 @@ button.correct {
 	display: block;
 	margin: 0 auto;
 }
-.closebutton {
-	float: right;
-	position: relative;
-	bottom: 35px;
-	left: 50px;
-	display: none;
-}
 .modalbox {
 	margin-top: 200px;
 	border: 1px solid gray;
@@ -197,4 +190,14 @@ button.correct {
 }
 .resultsgif {
 	display: none;
+}
+button.resetbutton {
+	display: none;
+	margin: 70px auto 25px auto;
+	background-color: #014EBE;
+	height: 75px;
+	color: white;
+	font-size: 2em;
+	font-weight: 100;
+	border-radius: 5px;
 }
