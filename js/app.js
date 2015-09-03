@@ -52,28 +52,25 @@ $(document).ready(function() {
 		}
 	];
 
+	var answers = [];
 	var gotTrivia = {
-		activeQuestion: function() {
-			var answeredQuestions = 0;
-				for (var r = 0; r < quiz.length; r++) {
-					if (quiz[r].result !== undefined) answeredQuestions++;
-				}
-				if (answeredQuestions === quiz.length || quiz.length === undefined ) {
-					return false;
-				}
-			return answeredQuestions;
-		},
+		currQ: 0, //refactor all code to use this counter
+		score: 0,
+		timePerQ: 10,
 		timeRemaining: function() {
-			var initialWidth = $(window).width();
-			gotTrivia.startTimer(9);
-			$('.meter > span').width(initialWidth);
+			$('.secondsleft').text(this.timePerQ);		//set timer to 10
+			this.startTimer(((this.timePerQ)-1));
+
+			$('.meter > span').width($(window).width());
 			$('.meter > span').each(function() {
 				$(this)
-					 .width('origWidth')
+					 .width($(window).width())
 					.animate({
 						width: 0
-					}, 10000);
+					}, (gotTrivia.timePerQ*1000));
+
 			});
+			console.log("does it get here");
 		},
 		startTimer: function(x) {
 				 timer = setInterval(function() {
@@ -82,193 +79,183 @@ $(document).ready(function() {
 						x--;
 					}
 					else {
-						gotTrivia.recordResult(gotTrivia.activeQuestion());
-						gotTrivia.setScoreboard();
+						gotTrivia.recordResult(false);
 						clearInterval(timer);
+						gotTrivia.nextQuestion();
 					}
 				}, 1000);
-			},
-			stopTimer: function() {
-				$('.meter > span').stop();
-				clearInterval(timer);
-			},
-			setQuestion: function(qnumber) {
-				if (qnumber !== false) $('.question').text(quiz[qnumber].prompt);
-			},
-			setChoices: function(mchoice) {
-				if (mchoice !== false) {
-					var mchoices = quiz[mchoice].choices;
-					for (var z = 0; z < mchoices.length; z++) {
-						$('.multiplechoices div.q' + (z+1) + ' button').text(mchoices[z]);
-						$('.multiplechoices div.q' + (z+1) + ' button').removeClass('hider');
-						$('.multiplechoices div.q' + (z+1) + ' button').removeClass('incorrect').removeClass('correct');
-					}
+		},
+		stopTimer: function() {
+			$('.meter > span').stop();
+			clearInterval(timer);
+		},
+		setQuestion: function(qnumber) {
+			if (qnumber !== false) $('.question').text(quiz[qnumber].prompt);
+		},
+		setChoices: function() {
+			$('.multiplechoices div > button').prop('disabled', false).removeClass('correct incorrect');
+				for (var z = 0; z < quiz[this.currQ].choices.length; z++) {
+					$('.multiplechoices div.q' + z + ' button').text(quiz[this.currQ].choices[z]);
+					$('.multiplechoices div.q' + z + ' button').removeClass('hider');
+					$('.multiplechoices div.q' + z + ' button').removeClass('incorrect').removeClass('correct');
 				}
-			},
-			setButtons: function(choice) {
-				$('.multiplechoices div > button').prop('disabled', true);
-				setTimeout(function() {
-					setCorrect(gotTrivia.activeQuestion());
-				}, 500);
-				setTimeout(function() {
-					hideIncorrect(gotTrivia.activeQuestion());
-				}, 1800);
-				setTimeout(function() {
-					hideIncorrectChoice(gotTrivia.activeQuestion());
-				}, 1900);
-				setTimeout(function() {
-					gotTrivia.nextQuestion(gotTrivia.activeQuestion());
-				}, 3000);
-
-				function setCorrect(active) {
-					$('.multiplechoices div > button').each(function(index){
-						if ((active) && (($( this ).text()) === quiz[(gotTrivia.activeQuestion()-1)].answer)) {
-								$( this ).addClass('correct');
-							}
-					});
-				}
-				function hideIncorrectChoice(active) {
-					$('.multiplechoices div > button').each(function(index){
-						if ((active) && ($( this ).text() === choice)) {
-							$( this ).addClass('hider');
-						}
-					});
-				}
-				function hideIncorrect(active) {
-					$('.multiplechoices div > button').each(function(index){
-						if ((active) && ($( this ).text() !== quiz[gotTrivia.activeQuestion()].answer) && ($( this ).text() !== choice)) {
-							$( this ).addClass('hider');
-						}
-					});
-				}
-			},
-			calcScore: function(result) {
-				//rules: 10 points per correct answer; 2 extra points if answered in <5 second
-				if (result) {
-					score += 10;
-					var secondsPoints = parseInt($('.secondsleft').text(), 10);
-					if (secondsPoints > 5) {
-						score += 2;
-					}
-					$('.playerscore').text(score);
-				}
-				$('.playerscore').text(score);
-			},
-			recordResult: function(q,a) {
-				gotTrivia.setButtons(a);
-				if (a === quiz[q].answer) {
-					quiz[q].result = true;  //**DONE** change this to booleans
-					gotTrivia.calcScore(true);
-					return;
-				}
-				else {
-					quiz[q].result = false;
-					return "incorrect";
-				}
-			},
-			setImage: function() {
-				$('.qimage > img').prop('src', 'img/' + (gotTrivia.activeQuestion()+1)  +'.jpg ');
-			},
-			setScoreboard: function() {
-					var numberCorrect = 0;
-					$('i').each(function(index){
-						if (quiz[index].result === undefined) {
-							$( this ).addClass('unanswered fa-circle-o')
-							.removeClass('wronganswer currentquestion rightanswer')
-							.siblings('span').show(); //**DONE** instead of remove, maybe use .empty() so I can restart the quiz
-						}
-						if (quiz[index].result === false) {
-							$( this ).addClass('wronganswer fa-times-circle-o')
-							.removeClass('fa-circle-o')
-							.siblings('span').hide(); //**DONE** instead of remove, maybe use .empty() so I can restart the quiz
-						}
-						else if (quiz[index].result) {
-							$( this ).addClass('fa-check-circle-o rightanswer')
-								.removeClass('fa-circle-o currentquestion')
-								.siblings('span').hide();
-							numberCorrect++;
-						}
-						else if (index === gotTrivia.activeQuestion()) {
-							$( this ).addClass('currentquestion');
-						}
-					});
-					return numberCorrect;
-			},
-			nextQuestion: function(q){
-				if (!q) {
-					gotTrivia.finalScore();
-					return;
-				}
-				gotTrivia.setQuestion(gotTrivia.activeQuestion());
-				gotTrivia.setChoices(gotTrivia.activeQuestion());
-				$('.qimage > img').prop('src', 'img/' + (gotTrivia.activeQuestion()+1)  +'.jpg ');
-				$('.multiplechoices div > button').prop('disabled', false);
-				$('.secondsleft').text(10);		//set timer to 10
-				gotTrivia.timeRemaining();
-			},
-			finalScore: function() {
-				$('body').children().toggle(); //hide everything on the page
-				$('.finalscoreboard > div').addClass('finalstats youranswers');
-				$('.topcontent').show();
-				$('button.resetbutton').show();
-				$('.timeleftbox').hide();
-				$('.playerbox').children().hide();
-				$('.finalscoreboard').children().removeClass('hider');
-				if (gotTrivia.setScoreboard() < 5) {
-					$('.finalstats').text(gotTrivia.setScoreboard() + "/" + quiz.length);
-					$('.resultsgif').show();
-					$('.finalstats').addClass('wronganswer');
-					$('.resultsgif').prop('src', 'img/youknownothing3.gif');
-				}
-				else {
-					$('.finalstats').text(gotTrivia.setScoreboard() + "/" + quiz.length + " questions correct.  Keep that mind sharp.");
-					$('.resultsgif').show();
-					$('.finalstats').addClass('rightanswer');
-					$('.resultsgif').prop('src', 'img/tyrionsmart.gif').prop('width', '75%');
-				}
-				$('.topcontent').on('click', '.answersbox', function(event) {
-					event.preventDefault();
-					console.log('answers box clicked')					;
-					$('body').children().toggle();
-					$('.finalscoreboard').hide();
-					 $('.topcontent').show();
-					$('.timeleftbox').show();
-					$('.playerbox').children().show();
-					gotTrivia.resetQuiz();
-					gotTrivia.initQuiz();
-				});
-			},
-			initClickWatch: function() {
-				$('.qcontent').on('click', '.multiplechoices div > button', function(event) { //listen for answer choice clicks
-					event.preventDefault();
-					var buttoncolor = gotTrivia.recordResult(gotTrivia.activeQuestion(), $(this).text());
-					$( this ).addClass(buttoncolor);
-					gotTrivia.setScoreboard();
-					gotTrivia.stopTimer();
-				});
-			},
-			initQuiz: function() {
-  			gotTrivia.initClickWatch();
-				gotTrivia.timeRemaining();
-				gotTrivia.setQuestion(gotTrivia.activeQuestion());
-				gotTrivia.setChoices(gotTrivia.activeQuestion());
-				gotTrivia.setImage();
-				gotTrivia.setScoreboard();
-				gotTrivia.calcScore();
-			},
-			resetQuiz: function() {
-				//clear results answers. then initQuiz().  i think that should do it?
-				for (var t in quiz) {
-					quiz[t].result = undefined;
-				}
-				$('.multiplechoices div > button').prop('disabled', false).removeClass('correct incorrect');
-
-				score = 0;
-				$('.playerscore').text(score);
+		},
+		setClicked: function(a) {
+			$('.multiplechoices div > button').prop('disabled', true);
+			if ($(a).text() === quiz[this.currQ].answer) {
+				$( a ).addClass('correct');
 			}
+			else $( a ).addClass('incorrect');
+		},
+		setButtons: function(a) {
+			setTimeout(function() { // marks the correct choice; only matters if the correct choice wasn't already selected
+				setCorrect();
+			}, 500);
+			setTimeout(function() { // hide the unselected && incorrect choices
+				hideIncorrect(a);
+			}, 1300);
+			setTimeout(function() { // hide the selected && incorrect choice
+				hideIncorrectChoice(a);
+			}, 1900);
+			setTimeout(function() {
+				gotTrivia.nextQuestion();
+			}, 3000);
+
+			function setCorrect() {
+				$('.multiplechoices div > button').each(function(index){
+					if ($(this).text() === quiz[gotTrivia.currQ].answer) {
+							$( this ).addClass('correct');
+							return;
+						}
+				});
+			}
+			function hideIncorrectChoice(a) {
+				$('.multiplechoices div > button').each(function(index){
+					if ($(a).text() === $(this).text()) {
+						$( this ).addClass('hider');
+					}
+				});
+			}
+			function hideIncorrect(a) {
+				$('.multiplechoices div > button').each(function(index){
+					if ($( this ).text() !== $(a).text() && ($(this).text() !== quiz[gotTrivia.currQ].answer)) {
+						$( this ).addClass('hider');
+					}
+				});
+			}
+		},
+		calcScore: function(result) {
+			//rules: 10 points per correct answer; 2 extra points if answered in <5 second
+			if (result) {
+				this.score += 10;
+				var secondsPoints = parseInt($('.secondsleft').text(), 10);
+				if (secondsPoints > 5) {
+					this.score += 2;
+				}
+			}
+			$('.playerscore').text(this.score);
+		},
+		recordResult: function(a) { //TODO can store results in a separate array.  will make it esier to clear that array to reset the quiz
+			if ((a === true) || ($(a).text() === quiz[this.currQ].answer)) {
+				answers[this.currQ] = true;
+				this.calcScore(true);
+				this.setScoreboard(true);
+			}
+			else {
+				this.setScoreboard(false);
+				answers[this.currQ] = false;
+			}
+		},
+		setImage: function() {
+			$('.qimage > img').prop('src', 'img/' + ((this.currQ)+1)  +'.jpg ');
+		},
+		setScoreboard: function(selection) {//use gotTrivia.currQ to just change the one the user is on, so wouldn't require a loop
+			$('i').eq(this.currQ).addClass('currentquestion');
+			if (selection) {
+				$( 'i' ).eq(this.currQ).addClass('fa-check-circle-o rightanswer')
+					.removeClass('fa-circle-o currentquestion')
+					.siblings('span').hide();
+			}
+			else if (selection === false) {
+				$( 'i' ).eq(this.currQ).addClass('wronganswer fa-times-circle-o')
+					.removeClass('fa-circle-o currentquestion')
+					.siblings('span').hide();
+			}
+		},
+		nextQuestion: function(q){
+
+
+			console.log("current question is: " + this.currQ + " length of quiz[] is " + quiz.length);
+			if ((this.currQ) < quiz.length) {
+				this.setScoreboard();
+				this.currQ++;
+				this.setQuestion(this.currQ);
+				this.setChoices(this.currQ);
+				this.setImage();
+				this.timeRemaining();
+			}
+			else {
+				gotTrivia.finalScore();
+			}
+
+		},
+		finalScore: function() {
+			$('body').children().toggle(); //hide everything on the page
+			$('.finalscoreboard > div').addClass('finalstats youranswers');
+			$('.topcontent').show();
+			$('button.resetbutton').show();
+			$('.timeleftbox').hide();
+			$('.playerbox').children().hide();
+			$('.finalscoreboard').children().removeClass('hider');
+			if (this.score < 5) {
+				$('.finalstats').text("Your total score:" + this.score);
+				$('.resultsgif').show();
+				$('.finalstats').addClass('wronganswer');
+				$('.resultsgif').prop('src', 'img/youknownothing3.gif');
+			}
+			else {
+				$('.finalstats').text("Your total score:" + this.score + " Keep that mind sharp.");
+				$('.resultsgif').show();
+				$('.finalstats').addClass('rightanswer');
+				$('.resultsgif').prop('src', 'img/tyrionsmart.gif').prop('width', '75%');
+			}
+			$('.topcontent').on('click', 'button.resetbutton', function(event) {
+				event.preventDefault();
+				console.log('resetbutton was clicked')					;
+				$('body').children().toggle();
+				$('.finalscoreboard').hide();
+				 $('.topcontent').show();
+				$('.timeleftbox').show();
+				$('.playerbox').children().show();
+				gotTrivia.resetQuiz();
+				gotTrivia.initQuiz();
+			});
+		},
+		initClickWatch: function() {
+			$('.qcontent').on('click', '.multiplechoices div > button', function(event) { //listen for answer choice clicks
+				event.preventDefault();
+				gotTrivia.recordResult(this);
+				gotTrivia.setClicked(this);
+				gotTrivia.setButtons(this);
+				gotTrivia.stopTimer();
+			});
+		},
+		initQuiz: function() {
+			gotTrivia.initClickWatch();
+			gotTrivia.timeRemaining();
+			gotTrivia.setQuestion(this.currQ);
+			gotTrivia.setChoices(this.currQ);
+			gotTrivia.setImage();
+			gotTrivia.setScoreboard();
+			gotTrivia.calcScore();
+		},
+		resetQuiz: function() {
+			answers = [];
+			this.currQ = 0;
+			this.score = 0;
+		}
 	};
 
-	var score = 0;  //RYAN: where can i set this variable, is this the correct place to do so? if i don't set it, i get NaN error
-
 	gotTrivia.initQuiz();
+
 });
