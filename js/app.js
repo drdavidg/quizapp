@@ -56,7 +56,7 @@ $(document).ready(function() {
 	var gotTrivia = {
 		currQ: 0, //refactor all code to use this counter
 		score: 0,
-		timePerQ: 10,
+		timePerQ: 1,
 		timeRemaining: function() {
 			$('.secondsleft').text(this.timePerQ);		//set timer to 10
 			this.startTimer(((this.timePerQ)-1));
@@ -70,7 +70,6 @@ $(document).ready(function() {
 					}, (gotTrivia.timePerQ*1000));
 
 			});
-			console.log("does it get here");
 		},
 		startTimer: function(x) {
 				 timer = setInterval(function() {
@@ -171,7 +170,7 @@ $(document).ready(function() {
 		},
 		setScoreboard: function(selection) {//use gotTrivia.currQ to just change the one the user is on, so wouldn't require a loop
 			$('i').eq(this.currQ).addClass('currentquestion');
-			if (selection) {
+			if (selection === true) {
 				$( 'i' ).eq(this.currQ).addClass('fa-check-circle-o rightanswer')
 					.removeClass('fa-circle-o currentquestion')
 					.siblings('span').hide();
@@ -181,14 +180,18 @@ $(document).ready(function() {
 					.removeClass('fa-circle-o currentquestion')
 					.siblings('span').hide();
 			}
+			else if (selection === "reset") {
+				$( 'i' ).each(function(index) {
+					$( this ).removeClass('wronganswer rightanswer fa-times-circle-o fa-check-circle-o currentquestion')
+					.addClass('fa-circle-o')
+					.siblings('span').show();
+				});
+			}
 		},
 		nextQuestion: function(q){
-
-
-			console.log("current question is: " + this.currQ + " length of quiz[] is " + quiz.length);
-			if ((this.currQ) < quiz.length) {
+			this.currQ++;
+			if (this.currQ < quiz.length) {
 				this.setScoreboard();
-				this.currQ++;
 				this.setQuestion(this.currQ);
 				this.setChoices(this.currQ);
 				this.setImage();
@@ -197,7 +200,6 @@ $(document).ready(function() {
 			else {
 				gotTrivia.finalScore();
 			}
-
 		},
 		finalScore: function() {
 			$('body').children().toggle(); //hide everything on the page
@@ -207,7 +209,7 @@ $(document).ready(function() {
 			$('.timeleftbox').hide();
 			$('.playerbox').children().hide();
 			$('.finalscoreboard').children().removeClass('hider');
-			if (this.score < 5) {
+			if (this.score < 60) {
 				$('.finalstats').text("Your total score:" + this.score);
 				$('.resultsgif').show();
 				$('.finalstats').addClass('wronganswer');
@@ -240,19 +242,22 @@ $(document).ready(function() {
 				gotTrivia.stopTimer();
 			});
 		},
-		initQuiz: function() {
-			gotTrivia.initClickWatch();
-			gotTrivia.timeRemaining();
-			gotTrivia.setQuestion(this.currQ);
-			gotTrivia.setChoices(this.currQ);
-			gotTrivia.setImage();
-			gotTrivia.setScoreboard();
-			gotTrivia.calcScore();
+		initQuiz: function() { //TODO see if I can consolidate this so I don't need since it repeats most of nextQuestion()
+			this.initClickWatch();
+			this.timeRemaining();
+			this.setQuestion(this.currQ);
+			this.setChoices(this.currQ);
+			this.setImage();
+			this.setScoreboard();
+			this.calcScore();
 		},
 		resetQuiz: function() {
 			answers = [];
 			this.currQ = 0;
 			this.score = 0;
+			this.stopTimer();
+			this.calcScore();
+			this.setScoreboard('reset');
 		}
 	};
 
