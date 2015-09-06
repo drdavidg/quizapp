@@ -56,7 +56,7 @@ $(document).ready(function() {
 	var gotTrivia = {
 		currQ: 0, //refactor all code to use this counter
 		score: 0,
-		timePerQ: 1,
+		timePerQ: 2,
 		timeRemaining: function() {
 			$('.secondsleft').text(this.timePerQ);		//set timer to 10
 			this.startTimer(((this.timePerQ)-1));
