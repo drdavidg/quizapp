@@ -56,7 +56,8 @@ $(document).ready(function() {
 	var gotTrivia = {
 		currQ: 0, //refactor all code to use this counter
 		score: 0,
-		timePerQ: 2,
+		timePerQ: 10,
+		initialized: false,
 		timeRemaining: function() {
 			$('.secondsleft').text(this.timePerQ);		//set timer to 10
 			this.startTimer(((this.timePerQ)-1));
@@ -241,9 +242,11 @@ $(document).ready(function() {
 				gotTrivia.setButtons(this);
 				gotTrivia.stopTimer();
 			});
+
 		},
 		initQuiz: function() { //TODO see if I can consolidate this so I don't need since it repeats most of nextQuestion()
-			this.initClickWatch();
+			if (this.initialized === false) this.initClickWatch();
+			this.initialized = true;
 			this.timeRemaining();
 			this.setQuestion(this.currQ);
 			this.setChoices(this.currQ);
